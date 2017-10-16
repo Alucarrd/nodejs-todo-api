@@ -1,28 +1,34 @@
 var express = require('express');
 
+var bodyParser = require('body-parser');
+
 var app = express();
 
 var PORT = process.env.PORT || 3000
 
-var todo = [{
-	id: 1,
-	description: "Meet mom for lunch",
-	completd: false, 
-	}, {
-		id: 2,
-		description: "Go to Market",
-		completed: false
+// var todo = [{
+// 	id: 1,
+// 	description: "Meet mom for lunch",
+// 	completd: false, 
+// 	}, {
+// 		id: 2,
+// 		description: "Go to Market",
+// 		completed: false
 
-	}, {
-		id: 3,
-		description: "Take onloine class",
-		completed: true
-	}];
+// 	}, {
+// 		id: 3,
+// 		description: "Take class Tonight",
+// 		completed: true
+// 	}];
 
-app.get('/', function(req, res){
-	res.send('To Do API');
+// app.get('/', function(req, res){
+// 	res.send('To Do API');
 
-});
+// });
+
+var todoNextId = 1;
+
+app.use(bodyParser.json());//now when we get a json in the request, we will be able to parse it
 
 
 //GET /todos 
@@ -51,8 +57,13 @@ app.get('/todos/:id', function(req, res){
 	
 });
 
+//POST /todos/
+app.post('/todos', function(req, res){
+	var body = req.body
+	console.log('description');
 
-
+	res.json(body);
+})
 
 
 
