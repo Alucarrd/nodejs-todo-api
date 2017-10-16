@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var app = express();
 
 var PORT = process.env.PORT || 3000
-
+var todo = [];
 // var todo = [{
 // 	id: 1,
 // 	description: "Meet mom for lunch",
@@ -60,9 +60,18 @@ app.get('/todos/:id', function(req, res){
 //POST /todos/
 app.post('/todos', function(req, res){
 	var body = req.body
-	console.log('description');
 
+	//increment body id
+	//push body into array
+	todo.push({
+		"id": todoNextId,
+		"description" : body.description,
+		"completed" : body.completed
+	});
+	console.log('description: ' + body.description);
+	todoNextId += 1;
 	res.json(body);
+
 })
 
 
