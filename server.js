@@ -35,6 +35,7 @@ app.use(bodyParser.json());//now when we get a json in the request, we will be a
 
 
 //GET /todos?completed=true
+//GET /todos?completed=true&q=dog //where q is query parameter to search in description
 app.get('/todos', function(req, res){
 	var queryParams = req.query;
 	var filteredTodos = todos;
@@ -45,7 +46,13 @@ app.get('/todos', function(req, res){
 	//	called filteredTodos = _.where
 	//else if has prop && completed if 'false'
 
+	if(queryParams.hasOwnProperty('q') && queryParams.q.trim().length > 0){
+		filteredTodos = _.filter(filteredTodos, function(obj){
+			return obj.description.toLowerCase().indexOf(queryParams.q.toLowerCase().trim()) >= 0;
 
+		});
+	}
+		//use _.filter
 
 	res.json(filteredTodos); //converting to json	
 });

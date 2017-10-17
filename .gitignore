@@ -10,3 +10,4 @@ target/
 data/
 metastore_db/
 node-modules/
+*.sqlite
