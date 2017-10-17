@@ -7,10 +7,7 @@ var _ = require("underscore");
 var app = express();
 
 var PORT = process.env.PORT || 3000
-<<<<<<< HEAD
-=======
 
->>>>>>> 652106ba2ddf6c01f9f47066a4b0248bcf08be5d
 var todo = [];
 // var todo = [{
 // 	id: 1,
@@ -71,19 +68,6 @@ app.get('/todos/:id', function(req, res){
 
 //POST /todos/
 app.post('/todos', function(req, res){
-<<<<<<< HEAD
-	var body = req.body
-
-	//increment body id
-	//push body into array
-	todo.push({
-		"id": todoNextId,
-		"description" : body.description,
-		"completed" : body.completed
-	});
-	console.log('description: ' + body.description);
-	todoNextId += 1;
-=======
 //use _.pick to pick only the description and completed
 	var body = _.pick(req.body, "description", "completed");
 
@@ -97,9 +81,7 @@ app.post('/todos', function(req, res){
 				"description" : body.description.trim(),
 				"completed" : body.completed});
 	todoNextId++;
->>>>>>> 652106ba2ddf6c01f9f47066a4b0248bcf08be5d
 	res.json(body);
-
 })
 
 
