@@ -93,14 +93,56 @@ app.delete('/todos/:id', function(req, res){
 	var matchTodo = _.findWhere(todo, {id: todoId});
 	if(!matchTodo){
 		//res.status(404).send();
-		res.status(404).json("error" : "no todo found with that id");
+		return res.status(404).json({"error" : "no todo found with that id"});
 	}
 	_.without(todo, matchTodo);
 	
 	res.json(todo);
 });
 
+//PUT /todos/:id
 
+app.put('/todos/:id', function(req, res){
+	var body = _.pick(req.body, "description", "completed");
+	var validAttribute = {};
+	console.log('my property of id is:' + req.params.id);
+	var todoId = parseInt(req.params.id, 10);
+	var matchTodo = _.findWhere(todo, {id: todoId});
+	//to do validation
+
+	if(!matchTodo){
+		return res.status(400).send();
+	}
+
+	//body.hasOwnProperty('completed')
+	if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)){
+		validAttribute.completed = body.completed;
+	}else if(body.hasOwnProperty('completed')){
+		return res.status(400).send();
+
+	}else{
+		//never provided attribute, no problem here
+	}
+
+	if(body.hasOwnProperty('description') && _isString(body.description) && body.description.trim().length > 0){
+		validAttribute.description = body.description;
+	}else if(body.hasOwnProperty('description'))
+	{
+		return res.status(400).send();
+	}
+	else{
+
+	}
+
+	//_.extend()
+	//object in javascript are being passed around by reference
+	_.extend(matchTodo, validAttribute);
+
+	return rres.json(matchTodo);
+
+	
+
+});
 
 app.listen(PORT, function(){
 	console.log("Express listening on port " + PORT + "!");
