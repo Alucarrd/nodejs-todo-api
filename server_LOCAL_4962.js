@@ -2,15 +2,9 @@ var express = require('express');
 
 var bodyParser = require('body-parser');
 
-var _ = require("underscore");
-
 var app = express();
 
 var PORT = process.env.PORT || 3000
-<<<<<<< HEAD
-=======
-
->>>>>>> 652106ba2ddf6c01f9f47066a4b0248bcf08be5d
 var todo = [];
 // var todo = [{
 // 	id: 1,
@@ -45,33 +39,26 @@ app.get('/todos', function(req, res){
 //GET /todos/:id ie /todos/1
 
 app.get('/todos/:id', function(req, res){
-	var todoId = parseInt(req.params.id, 10);
+	var todoId = parseInt(req.params.id);
 	//iterate of todos array, find the match
 
 	//if not, repl: res.status(404).send();
 	
-
-	//refactoring using underscore for better maintenance
-	// todo.forEach(function(todo){
-	// 	if(todoId === todo.id){;
-	// 		myItem = todo;
-	// 	}
-	// });
-	var matchTodo = _.findWhere(todo, {id: todoId})
-
-	if(matchTodo)
-		res.json(matchTodo);
+	var myItem;
+	todo.forEach(function(todo){
+		if(todoId === todo.id){;
+			myItem = todo;
+		}
+	});
+	if(myItem)
+		res.json(myItem);
 	else
 		res.status(404).send();
 	
 });
 
-
-
-
 //POST /todos/
 app.post('/todos', function(req, res){
-<<<<<<< HEAD
 	var body = req.body
 
 	//increment body id
@@ -83,40 +70,10 @@ app.post('/todos', function(req, res){
 	});
 	console.log('description: ' + body.description);
 	todoNextId += 1;
-=======
-//use _.pick to pick only the description and completed
-	var body = _.pick(req.body, "description", "completed");
-
-	if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
-		return res.status(400).send();
-	}
-
-//set body.description to trim
-
-	todo.push({ "id" : todoNextId,
-				"description" : body.description.trim(),
-				"completed" : body.completed});
-	todoNextId++;
->>>>>>> 652106ba2ddf6c01f9f47066a4b0248bcf08be5d
 	res.json(body);
 
 })
 
-
-//DELETE /todos/:id
-//user _.without()
-app.delete('/todos/:id', function(req, res){
-	
-	var todoId = parseInt(req.params.id, 10);
-	var matchTodo = _.findWhere(todo, {id: todoId});
-	if(!matchTodo){
-		//res.status(404).send();
-		res.status(404).json("error" : "no todo found with that id");
-	}
-	_.without(todo, matchTodo);
-	
-	res.json(todo);
-});
 
 
 
