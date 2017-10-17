@@ -34,9 +34,20 @@ var todoNextId = 1;
 app.use(bodyParser.json());//now when we get a json in the request, we will be able to parse it
 
 
-//GET /todos 
+//GET /todos?completed=true
 app.get('/todos', function(req, res){
-	res.json(todo); //converting to json	
+	var queryParams = req.query;
+	var filteredTodos = todos;
+	if(queryParams.hasOwnProperty('completed') && (queryParams.completed === 'true' || queryParams.completed === 'false')){
+		filteredTodos = _.where(filteredTodos, {completed: JSON.parse(queryParams)});
+	}	
+	//if has property && completed = true
+	//	called filteredTodos = _.where
+	//else if has prop && completed if 'false'
+
+
+
+	res.json(filteredTodos); //converting to json	
 });
 
 //GET /todos/:id ie /todos/1
@@ -54,7 +65,7 @@ app.get('/todos/:id', function(req, res){
 	// 		myItem = todo;
 	// 	}
 	// });
-	var matchTodo = _.findWhere(todo, {id: todoId})
+	var matchTodo = _.findWhere(todo, {id: todoId}) //return the first one matched
 
 	if(matchTodo)
 		res.json(matchTodo);
