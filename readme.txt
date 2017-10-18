@@ -55,3 +55,7 @@ windows failed to install 3.0.10, 3.1.13 works  "sqlite3": "^3.1.13",
 
 sqlitebrowser.org
 
+---
+.keep is used to prevent inconsistency between different operating systems.
+because if a folder is empty, it will nto be commited to repository
+
