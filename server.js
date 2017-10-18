@@ -4,6 +4,8 @@ var bodyParser = require('body-parser');
 
 var _ = require("underscore");
 
+var db = require('./db.js');
+
 var app = express();
 
 var PORT = process.env.PORT || 3000
@@ -92,15 +94,29 @@ app.post('/todos', function(req, res){
 	if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
 		return res.status(400).send();
 	}
+	db.todo.create(body).then(function(todo){
+		res.json(todo.toJSON()); //todo is sequelize, has a lot of sequelize method
+	}, function(e){
+		res.status(400).json(e);
+	});
+	//call create on db.todo
+	//	respond to api call with 200 and todo object
+	//	else send back error
+
+
+
+
 
 //set body.description to trim
+//comment this out to convert into database
+	// todo.push({ "id" : todoNextId,
+	// 			"description" : body.description.trim(),
+	// 			"completed" : body.completed});
+	// todoNextId++;
+	//use db.todo.create
 
-	todo.push({ "id" : todoNextId,
-				"description" : body.description.trim(),
-				"completed" : body.completed});
-	todoNextId++;
-	res.json(body);
-})
+	//res.json(body);
+});
 
 
 //DELETE /todos/:id
@@ -162,7 +178,11 @@ app.put('/todos/:id', function(req, res){
 
 });
 
-app.listen(PORT, function(){
+db.sequelize.sync().then(function(){
+	app.listen(PORT, function(){
 	console.log("Express listening on port " + PORT + "!");
+	});
+
 });
+
 

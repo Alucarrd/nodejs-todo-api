@@ -8,3 +8,14 @@ var sequelize = new Sequelize(undefined, undefined, undefined, { //database, use
 });
 
 var db = {};
+//time to load into all the sequelize objects
+
+//this helps us load in sequelize model from other folders
+db.todo = sequelize.import(__dirname + '/models/todo.js');
+
+db.sequelize = sequelize; //sequelize instance
+db.Sequelize - Sequelize; //Sequelize library
+
+module.exports = db;
+
+
