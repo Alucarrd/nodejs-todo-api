@@ -36,31 +36,85 @@ var todoNextId = 1;
 app.use(bodyParser.json());//now when we get a json in the request, we will be able to parse it
 
 
+// //GET /todos?completed=true
+// //GET /todos?completed=true&q=dog //where q is query parameter to search in description
+// app.get('/todos', function(req, res){
+// 	var queryParams = req.query;
+// 	var filteredTodos = todos;
+// 	if(queryParams.hasOwnProperty('completed') && (queryParams.completed === 'true' || queryParams.completed === 'false')){
+// 		filteredTodos = _.where(filteredTodos, {completed: JSON.parse(queryParams)});
+// 	}	
+// 	//if has property && completed = true
+// 	//	called filteredTodos = _.where
+// 	//else if has prop && completed if 'false'
+
+// 	if(queryParams.hasOwnProperty('q') && queryParams.q.trim().length > 0){
+// 		filteredTodos = _.filter(filteredTodos, function(obj){
+// 			return obj.description.toLowerCase().indexOf(queryParams.q.toLowerCase().trim()) >= 0;
+
+// 		});
+// 	}
+// 		//use _.filter
+
+// 	res.json(filteredTodos); //converting to json	
+// });
+
 //GET /todos?completed=true
 //GET /todos?completed=true&q=dog //where q is query parameter to search in description
 app.get('/todos', function(req, res){
-	var queryParams = req.query;
-	var filteredTodos = todos;
-	if(queryParams.hasOwnProperty('completed') && (queryParams.completed === 'true' || queryParams.completed === 'false')){
-		filteredTodos = _.where(filteredTodos, {completed: JSON.parse(queryParams)});
-	}	
-	//if has property && completed = true
-	//	called filteredTodos = _.where
-	//else if has prop && completed if 'false'
-
-	if(queryParams.hasOwnProperty('q') && queryParams.q.trim().length > 0){
-		filteredTodos = _.filter(filteredTodos, function(obj){
-			return obj.description.toLowerCase().indexOf(queryParams.q.toLowerCase().trim()) >= 0;
-
-		});
+	var query = req.query;
+	var where = {};
+	if(query.hasOwnProperty('completed') && (query.completed === 'true' || query.completed === 'false')){
+			where.completed=query.completed;
 	}
-		//use _.filter
+	if(query.hasOwnProperty('q') && query.q.trim().length > 0){
+		where.description = {
+			$like : '%' + query.q + '%'
+		};
+	}
+	return db.todo.findAll({
+		where : where
+	}).then(function(todos){
+			if(!!todos){
+				res.json(todos.toJSON());
+			}
+			else{
+				return res.status(404).send();
+			}
+			
+	}, function(e){
+		res.status(500).send(e);
+	});
 
-	res.json(filteredTodos); //converting to json	
+
 });
 
-//GET /todos/:id ie /todos/1
 
+
+//GET /todos/:id ie /todos/1
+//This version is for without db
+// app.get('/todos/:id', function(req, res){
+// 	var todoId = parseInt(req.params.id, 10);
+// 	//iterate of todos array, find the match
+
+// 	//if not, repl: res.status(404).send();
+	
+
+// 	//refactoring using underscore for better maintenance
+// 	// todo.forEach(function(todo){
+// 	// 	if(todoId === todo.id){;
+// 	// 		myItem = todo;
+// 	// 	}
+// 	// });
+// 	var matchTodo = _.findWhere(todo, {id: todoId}) //return the first one matched
+
+// 	if(matchTodo)
+// 		res.json(matchTodo);
+// 	else
+// 		res.status(404).send();
+	
+// });
+//GET /todos/:id ie /todos/1
 app.get('/todos/:id', function(req, res){
 	var todoId = parseInt(req.params.id, 10);
 	//iterate of todos array, find the match
@@ -74,15 +128,25 @@ app.get('/todos/:id', function(req, res){
 	// 		myItem = todo;
 	// 	}
 	// });
-	var matchTodo = _.findWhere(todo, {id: todoId}) //return the first one matched
+	db.todo.findById(todoId).then(function(todo){
+		if(!!todo){
+			res.json(todo.toJSON());
+		}
+		else{
+			return res.status(404).send();
+		}
+		
+	}, function(e){
+		res.status(500).send(e);
+	});
+	// var matchTodo = _.findWhere(todo, {id: todoId}) //return the first one matched
 
-	if(matchTodo)
-		res.json(matchTodo);
-	else
-		res.status(404).send();
+	// if(matchTodo)
+	// 	res.json(matchTodo);
+	// else
+	// 	res.status(404).send();
 	
 });
-
 
 
 

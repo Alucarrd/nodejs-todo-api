@@ -59,3 +59,14 @@ sqlitebrowser.org
 .keep is used to prevent inconsistency between different operating systems.
 because if a folder is empty, it will nto be commited to repository
 
+---
+
+to remove a file from staged list, 
+
+git reset HEAD path/filename
+
+---
+
+Once you commit, you can amend if you made some change and wants to push toeghter:
+
+git commit --amend -am "my msg"
