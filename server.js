@@ -72,15 +72,10 @@ app.get('/todos', function(req, res){
 			$like : '%' + query.q + '%'
 		};
 	}
-	return db.todo.findAll({
-		where : where
-	}).then(function(todos){
-			if(!!todos){
-				res.json(todos.toJSON());
-			}
-			else{
-				return res.status(404).send();
-			}
+	return db.todo.findAll({where : where}).then(function(todos){
+			
+		res.json(todos.toJSON());
+		
 			
 	}, function(e){
 		res.status(500).send(e);
@@ -188,14 +183,23 @@ app.post('/todos', function(req, res){
 app.delete('/todos/:id', function(req, res){
 	
 	var todoId = parseInt(req.params.id, 10);
-	var matchTodo = _.findWhere(todo, {id: todoId});
-	if(!matchTodo){
-		//res.status(404).send();
-		return res.status(404).json({"error" : "no todo found with that id"});
-	}
-	_.without(todo, matchTodo);
-	
-	res.json(todo);
+	db.todo.destroy({
+				where:{
+					id:todoId
+			}).then(function(rowsDeleted){
+				if(rowsDeleted === 0){
+					res.status(404).json({
+						error: 'No todo with id'
+					});
+
+				}else{
+					res.status(204).send(); //204 means everything works well and nothing to send back
+				}
+			}, function(e){
+				res.status(500).send(e);
+			});
+
+
 });
 
 //PUT /todos/:id
