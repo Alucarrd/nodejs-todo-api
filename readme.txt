@@ -90,3 +90,7 @@ npm install pg@4.4.1 --save
 
 npm install pg-hstore@2.3.2 --save
 
+
+-----------------------------------
+
+npm install bcrypt@0.8.5 --save

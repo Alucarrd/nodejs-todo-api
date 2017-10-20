@@ -29,6 +29,8 @@ var db = {};
 
 //this helps us load in sequelize model from other folders
 db.todo = sequelize.import(__dirname + '/models/todo.js');
+db.user = sequelize.import(__dirname + '/models/user.js');
+
 
 db.sequelize = sequelize; //sequelize instance
 db.Sequelize - Sequelize; //Sequelize library
