@@ -186,6 +186,7 @@ app.delete('/todos/:id', function(req, res){
 	db.todo.destroy({
 				where:{
 					id:todoId
+					}
 			}).then(function(rowsDeleted){
 				if(rowsDeleted === 0){
 					res.status(404).json({
@@ -202,45 +203,91 @@ app.delete('/todos/:id', function(req, res){
 
 });
 
-//PUT /todos/:id
+// //PUT /todos/:id
+
+// app.put('/todos/:id', function(req, res){
+// 	var body = _.pick(req.body, "description", "completed");
+// 	var validAttribute = {};
+// 	console.log('my property of id is:' + req.params.id);
+// 	var todoId = parseInt(req.params.id, 10);
+// 	var matchTodo = _.findWhere(todo, {id: todoId});
+// 	//to do validation
+
+// 	if(!matchTodo){
+// 		return res.status(400).send();
+// 	}
+
+// 	//body.hasOwnProperty('completed')
+// 	if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)){
+// 		validAttribute.completed = body.completed;
+// 	}else if(body.hasOwnProperty('completed')){
+// 		return res.status(400).send();
+
+// 	}else{
+// 		//never provided attribute, no problem here
+// 	}
+
+// 	if(body.hasOwnProperty('description') && _isString(body.description) && body.description.trim().length > 0){
+// 		validAttribute.description = body.description;
+// 	}else if(body.hasOwnProperty('description'))
+// 	{
+// 		return res.status(400).send();
+// 	}
+// 	else{
+
+// 	}
+
+// 	//_.extend()
+// 	//object in javascript are being passed around by reference
+// 	_.extend(matchTodo, validAttribute);
+
+// 	return rres.json(matchTodo);
+
+	
+
+// });
+
+
+// //PUT /todos/:id but using sequelize
 
 app.put('/todos/:id', function(req, res){
 	var body = _.pick(req.body, "description", "completed");
-	var validAttribute = {};
+	var attribute = {};
 	console.log('my property of id is:' + req.params.id);
 	var todoId = parseInt(req.params.id, 10);
-	var matchTodo = _.findWhere(todo, {id: todoId});
-	//to do validation
+	
 
-	if(!matchTodo){
-		return res.status(400).send();
-	}
 
 	//body.hasOwnProperty('completed')
-	if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)){
-		validAttribute.completed = body.completed;
-	}else if(body.hasOwnProperty('completed')){
-		return res.status(400).send();
-
-	}else{
-		//never provided attribute, no problem here
+	if(body.hasOwnProperty('completed')){
+		attribute.completed = body.completed;
+	
 	}
 
-	if(body.hasOwnProperty('description') && _isString(body.description) && body.description.trim().length > 0){
-		validAttribute.description = body.description;
-	}else if(body.hasOwnProperty('description'))
-	{
-		return res.status(400).send();
-	}
-	else{
-
+	if(body.hasOwnProperty('description')){
+		attribute.description = body.description;
 	}
 
 	//_.extend()
-	//object in javascript are being passed around by reference
-	_.extend(matchTodo, validAttribute);
+	//this time we need to use instance method instead of model method
 
-	return rres.json(matchTodo);
+	db.todo.findById(todoId).then(function(todo){
+		if(todo){
+			//time to chain our promises, if it works, then we will go to the next then, else, throws 500
+		 todo.update(attribute).then(function(todo){
+		res.json(todo.JSON());
+
+		}, function(e){
+			res.status(400).send(e); //400 means invalid syntax
+		});
+
+		}
+		else{
+			res.status(404).send();
+		}
+	}, function(e){
+		res.status(500).send();
+	});
 
 	
 
