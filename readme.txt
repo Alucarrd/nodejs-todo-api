@@ -70,3 +70,23 @@ git reset HEAD path/filename
 Once you commit, you can amend if you made some change and wants to push toeghter:
 
 git commit --amend -am "my msg"
+
+
+
+to add heroku postgres:
+
+heroku addons:create heroku-postgresql:hobby-dev
+
+you can use 
+
+heroku pg:wait
+
+which will sit around and wait until your database's completed.
+
+---
+now, we are going to install npm for postgres
+
+npm install pg@4.4.1 --save
+
+npm install pg-hstore@2.3.2 --save
+
