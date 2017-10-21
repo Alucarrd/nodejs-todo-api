@@ -4,7 +4,8 @@ var _ = require('underscore');
 module.exports = function(sequelize, DataTypes){
 //this is the specific format being passed through sequelize
 
-	return sequelize.define('user', { //for model, use lowercase singular names
+	//return sequelize.define('user', { //for model, use lowercase singular names
+		var user = sequelize.define('user', {
 		email:{
 			type:DataTypes.STRING,
 			allowNull: false,
@@ -46,6 +47,32 @@ module.exports = function(sequelize, DataTypes){
 					}
 				}
 			},
+			classMethods: {
+				authenticate: function(body){
+					return new Promise(function(resolve, reject){
+
+					if(!_.isString(body.email) || !_.isString(body.password) || body.email.trim().length === 0 ||body.password.trim().length === 0  ){
+						//return res.status(400).send();
+						//since this is a class method now, we just wnat to return reject
+						return reject();
+					}
+
+					//use db.user.findOne
+					user.findOne({where: { email : body.email}}).then(function(user){
+						if(!user || !bcrypt.compareSync(body.password, user.get('password_hash'))){
+							//return res.status(401).send(); //401 means authentication is possible but failed
+							return reject();
+						}
+						//res.json(user.toPublicJSON());
+						return resolve(user);
+					}, function(e){
+						//return res.status(500).send();
+						return reject();
+					});
+	
+					});
+				}
+			},
 			instanceMethods: { //an object
 				toPublicJSON: function(){
 					var json = this.toJSON(); //this refers instance
@@ -56,6 +83,6 @@ module.exports = function(sequelize, DataTypes){
 
 	});
 
-
+return user;
 
 };

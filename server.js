@@ -310,19 +310,22 @@ app.post('/users', function(req, res){
 //POST /users/login
 app.post('/users/login', function(req, res){
 	var body = _.pick(req.body, 'email', 'password');
-	if(!_.isString(body.email) || !_.isString(body.password) || body.email.trim().length === 0 ||body.password.trim().length === 0  ){
-		return res.status(400).send();
-	}
+	
+	//move the code to modulize the structure
+	//create method on user model
+	//we want to do db.user.authenticate() //custom function
 
-	//use db.user.findOne
-	db.user.findOne({where: { email : body.email}}).then(function(user){
-		if(!user || !bcrypt.compareSync(body.password, user.get('password_hash'))){
-			return res.status(401).send(); //401 means authentication is possible but failed
-		}
-		res.json(user.toPublicJSON());
+	//we want to pass in body and return a promise
+
+	db.user.authenticate(body).then(function(user){ //if goes well, return user object
+		res.json(user.toPublicJSON);
 	}, function(e){
-		return res.status(500).send();
-	});
+		//user doesn't exist or password's wrong, but we dun want to give more info as it would expose more detail about our data
+		//user friendly error msg at login is bad
+		return res.status(401).send();
+
+	});	
+
 
 
 
@@ -330,8 +333,8 @@ app.post('/users/login', function(req, res){
 
 
 
-//db.sequelize.sync({force:true}).then(function(){
-db.sequelize.sync().then(function(){
+db.sequelize.sync({force:true}).then(function(){
+//db.sequelize.sync().then(function(){
 
 	app.listen(PORT, function(){
 	console.log("Express listening on port " + PORT + "!");
