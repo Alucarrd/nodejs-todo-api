@@ -160,7 +160,14 @@ app.post('/todos', middleware.requireAuthentication, function(req, res){
 		return res.status(400).send();
 	}
 	db.todo.create(body).then(function(todo){
-		res.json(todo.toJSON()); //todo is sequelize, has a lot of sequelize method
+		//res.json(todo.toJSON()); //todo is sequelize, has a lot of sequelize method
+
+		req.user.addTodo(todo).then(function(){
+			return todo.reload() //we want to return here to keep the chain alive, but the reload() will add in the association with the 
+		}).then(function(todo){
+			res.json(todo.toJSON());
+		});
+
 	}, function(e){
 		res.status(400).json(e);
 	});

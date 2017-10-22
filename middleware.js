@@ -11,7 +11,7 @@ module.exports = function(db){
 			var token = req.get('Auth');
 			//we wnat to find user with db value
 			db.user.findByToken(token).then(function(user){
-				req.user = user;
+				req.user = user; //now we can access req.user in our code and do all sort of thing with that user
 				next();
 			}, function(e){
 				res.status(401).send();
