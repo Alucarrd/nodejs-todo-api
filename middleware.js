@@ -9,11 +9,14 @@ module.exports = function(db){
 		requireAuthentication :function(req, res, next){
 			//get the Auth token off the header
 			var token = req.get('Auth');
+			console.log('my auth token is:' + token);
 			//we wnat to find user with db value
 			db.user.findByToken(token).then(function(user){
+				console.log('I found myself');
 				req.user = user; //now we can access req.user in our code and do all sort of thing with that user
 				next();
 			}, function(e){
+				console.log('I cannot find not found');
 				res.status(401).send();
 			});
 		}

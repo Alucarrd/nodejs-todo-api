@@ -69,7 +69,9 @@ app.use(bodyParser.json());//now when we get a json in the request, we will be a
 //GET /todos?completed=true&q=dog //where q is query parameter to search in description
 app.get('/todos', middleware.requireAuthentication, function(req, res){
 	var query = req.query;
-	var where = {};
+	var where = { }; //req.get('user').id
+	where.userId = req.user.get('id');
+
 	if(query.hasOwnProperty('completed') && (query.completed === 'true' || query.completed === 'false')){
 			where.completed=query.completed;
 	}
@@ -80,7 +82,7 @@ app.get('/todos', middleware.requireAuthentication, function(req, res){
 	}
 	return db.todo.findAll({where : where}).then(function(todos){
 			
-		res.json(todos.toJSON());
+		res.json(todos);
 		
 			
 	}, function(e){
@@ -129,7 +131,10 @@ app.get('/todos/:id', middleware.requireAuthentication, function(req, res){
 	// 		myItem = todo;
 	// 	}
 	// });
-	db.todo.findById(todoId).then(function(todo){
+	//change to use the findOne with the where object
+	var where = {userId: req.user.get('id'), id: todoId};
+	//db.todo.findById(todoId).then(function(todo){
+		db.todo.findOne({where: where}).then(function(todo){
 		if(!!todo){
 			res.json(todo.toJSON());
 		}
@@ -194,11 +199,12 @@ app.post('/todos', middleware.requireAuthentication, function(req, res){
 //DELETE /todos/:id
 //user _.without()
 app.delete('/todos/:id', middleware.requireAuthentication, function(req, res){
-	
+	//update this to use userid in the where as well
 	var todoId = parseInt(req.params.id, 10);
 	db.todo.destroy({
 				where:{
-					id:todoId
+					id:todoId,
+					userId: req.user.get('id')
 					}
 			}).then(function(rowsDeleted){
 				if(rowsDeleted === 0){
@@ -283,12 +289,16 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res){
 
 	//_.extend()
 	//this time we need to use instance method instead of model method
-
-	db.todo.findById(todoId).then(function(todo){
+	var where = {
+		id: todoId,
+		userId: req.user.get('id')
+	}
+	db.todo.findOne({where:where}).then(function(todo){
+		//db.todo.findById(todoId).then(function(todo){
 		if(todo){
 			//time to chain our promises, if it works, then we will go to the next then, else, throws 500
 		 todo.update(attribute).then(function(todo){
-		res.json(todo.JSON());
+		res.json(todo);
 
 		}, function(e){
 			res.status(400).send(e); //400 means invalid syntax
@@ -331,14 +341,15 @@ app.post('/users/login', function(req, res){
 	db.user.authenticate(body).then(function(user){ //if goes well, return user object
 		//res.header will generate custom token
 		var customToken = user.generateToken('authentication');
-		if(token) //if there's token then return
+
+		if(customToken) //if there's token then return
 			res.header('Auth', customToken).json(user.toPublicJSON);
 		else
-			return res.status(401).send();
+			 res.status(401).send();
 	}, function(e){
 		//user doesn't exist or password's wrong, but we dun want to give more info as it would expose more detail about our data
 		//user friendly error msg at login is bad
-		return res.status(401).send();
+		 res.status(401).send();
 
 	});	
 

@@ -78,17 +78,25 @@ module.exports = function(sequelize, DataTypes){
 						//we are going to decrypt the token then decode the data
 						try{
 							//jwt.verify will verify if the token's been verified
+							//console.log('I am looking for myself using token:' + token);
 							var decodedJWT = jwt.verify(token, 'randomPwd');
+							//console.log('my token is ' + decodedJWT.token);
+
 							var bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@#');
 							//json.parse takes a string and parse it into json object
+							//console.log('I just decrypted...');
+							//console.log('sneak preview:' + bytes.toString(cryptojs.enc.Utf8));
+							var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8));
 
-							var tokenData = JSON.parse(bytes.toString(cryptojs.enc.UTF8));
+
+							//console.log('here is my token data:' + tokenData);
 							user.findById(tokenData.id).then(function(user){
+								console.log('I am looking...');
 								if(user)
 									resolve(user);
 								else
 									reject();
-								
+
 							}, function(e){
 								reject();
 							});
@@ -110,7 +118,7 @@ module.exports = function(sequelize, DataTypes){
 						return undefined;
 					try{
 						//take user data (id and token type) and encrypt that
-						var stringData = json.stringify({id: this.get('id'), type: type})
+						var stringData = JSON.stringify({id: this.get('id'), type: type})
 						//in most of hte time, type is authentication instead of generate token for resetting pwd
 						var encryptData = cryptojs.AES.encrypt(stringData, 'abc123!@#' ).toString();
 						var token = jwt.sign({
