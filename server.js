@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 
 var bcrypt = require('bcrypt');
 
+
 var _ = require("underscore");
 
 var db = require('./db.js');
@@ -11,6 +12,9 @@ var db = require('./db.js');
 var app = express();
 
 var PORT = process.env.PORT || 3000
+
+var middleware = require('./middleware.js')(db);
+
 
 var todo = [];
 // var todo = [{
@@ -63,7 +67,7 @@ app.use(bodyParser.json());//now when we get a json in the request, we will be a
 
 //GET /todos?completed=true
 //GET /todos?completed=true&q=dog //where q is query parameter to search in description
-app.get('/todos', function(req, res){
+app.get('/todos', middleware.requireAuthentication, function(req, res){
 	var query = req.query;
 	var where = {};
 	if(query.hasOwnProperty('completed') && (query.completed === 'true' || query.completed === 'false')){
@@ -112,7 +116,7 @@ app.get('/todos', function(req, res){
 	
 // });
 //GET /todos/:id ie /todos/1
-app.get('/todos/:id', function(req, res){
+app.get('/todos/:id', middleware.requireAuthentication, function(req, res){
 	var todoId = parseInt(req.params.id, 10);
 	//iterate of todos array, find the match
 
@@ -148,7 +152,7 @@ app.get('/todos/:id', function(req, res){
 
 
 //POST /todos/
-app.post('/todos', function(req, res){
+app.post('/todos', middleware.requireAuthentication, function(req, res){
 //use _.pick to pick only the description and completed
 	var body = _.pick(req.body, "description", "completed");
 
@@ -182,7 +186,7 @@ app.post('/todos', function(req, res){
 
 //DELETE /todos/:id
 //user _.without()
-app.delete('/todos/:id', function(req, res){
+app.delete('/todos/:id', middleware.requireAuthentication, function(req, res){
 	
 	var todoId = parseInt(req.params.id, 10);
 	db.todo.destroy({
@@ -252,7 +256,7 @@ app.delete('/todos/:id', function(req, res){
 
 // //PUT /todos/:id but using sequelize
 
-app.put('/todos/:id', function(req, res){
+app.put('/todos/:id', middleware.requireAuthentication, function(req, res){
 	var body = _.pick(req.body, "description", "completed");
 	var attribute = {};
 	console.log('my property of id is:' + req.params.id);
