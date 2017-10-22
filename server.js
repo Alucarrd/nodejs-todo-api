@@ -328,10 +328,42 @@ app.post('/users', function(req, res){
 });
 
 
+// //POST /users/login
+// app.post('/users/login', function(req, res){
+// 	var body = _.pick(req.body, 'email', 'password');
+
+// 	//move the code to modulize the structure
+// 	//create method on user model
+// 	//we want to do db.user.authenticate() //custom function
+
+// 	//we want to pass in body and return a promise
+
+// 	db.user.authenticate(body).then(function(user){ //if goes well, return user object
+// 		//res.header will generate custom token
+// 		var customToken = user.generateToken('authentication');
+// 		//we want to save the token to db
+// 		if(customToken) //if there's token then return
+// 			res.header('Auth', customToken).json(user.toPublicJSON);
+// 		else
+// 			 res.status(401).send();
+// 	}, function(e){
+// 		//user doesn't exist or password's wrong, but we dun want to give more info as it would expose more detail about our data
+// 		//user friendly error msg at login is bad
+// 		 res.status(401).send();
+
+// 	});	
+
+
+
+
+// });
+
+
+
 //POST /users/login
 app.post('/users/login', function(req, res){
 	var body = _.pick(req.body, 'email', 'password');
-	
+	var userInstance;
 	//move the code to modulize the structure
 	//create method on user model
 	//we want to do db.user.authenticate() //custom function
@@ -341,16 +373,18 @@ app.post('/users/login', function(req, res){
 	db.user.authenticate(body).then(function(user){ //if goes well, return user object
 		//res.header will generate custom token
 		var customToken = user.generateToken('authentication');
-
-		if(customToken) //if there's token then return
-			res.header('Auth', customToken).json(user.toPublicJSON);
-		else
-			 res.status(401).send();
-	}, function(e){
-		//user doesn't exist or password's wrong, but we dun want to give more info as it would expose more detail about our data
-		//user friendly error msg at login is bad
-		 res.status(401).send();
-
+		userInstance = user; //so we can access this user instance in our json object
+		//we want to save the token to db
+		return db.token.create({
+			token : token
+		});
+		//the above run after authentication finishes
+	}).then(function(tokenInstance){
+		//this run after token's returned
+		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
+	}).catch(function(){
+		//if anything goes wrong, come here
+		res.status(401).send();
 	});	
 
 
@@ -358,6 +392,17 @@ app.post('/users/login', function(req, res){
 
 });
 
+//DELETE /user/login
+//only logged in user can log out
+app.delete('/users/login', middleware.requireAuthentication, function(req, res){
+	req.token.destroy().then(function(){
+		res.status(204).send();
+	}).catch(function(e){
+		//if anything goes wrong, we will send 500 error
+		res.status(500).send(e);
+	});
+
+});
 
 
 db.sequelize.sync({force:true}).then(function(){
