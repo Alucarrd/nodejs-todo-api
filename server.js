@@ -318,7 +318,12 @@ app.post('/users/login', function(req, res){
 	//we want to pass in body and return a promise
 
 	db.user.authenticate(body).then(function(user){ //if goes well, return user object
-		res.json(user.toPublicJSON);
+		//res.header will generate custom token
+		var customToken = user.generateToken('authentication');
+		if(token) //if there's token then return
+			res.header('Auth', customToken).json(user.toPublicJSON);
+		else
+			return res.status(401).send();
 	}, function(e){
 		//user doesn't exist or password's wrong, but we dun want to give more info as it would expose more detail about our data
 		//user friendly error msg at login is bad

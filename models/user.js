@@ -1,6 +1,7 @@
 var bcrypt = require('bcrypt');
 var _ = require('underscore');
-
+var cryptojs = require('crypto-js');
+var jwt = require('jsonwebtoken');
 module.exports = function(sequelize, DataTypes){
 //this is the specific format being passed through sequelize
 
@@ -77,6 +78,25 @@ module.exports = function(sequelize, DataTypes){
 				toPublicJSON: function(){
 					var json = this.toJSON(); //this refers instance
 					return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');
+				},
+				generateToken: function(type){
+					if(!_.isString(type))
+						return undefined;
+					try{
+						//take user data (id and token type) and encrypt that
+						var stringData = json.stringify({id: this.get('id'), type: type})
+						//in most of hte time, type is authentication instead of generate token for resetting pwd
+						var encryptData = cryptojs.AES.encrypt(stringData, 'abc123!@#' ).toString();
+						var token = jwt.sign({
+							token: encryptData
+						}, 'randomPwd');
+						return token;
+					}
+					catch(e){
+						//easier to see error
+						console.error(e);
+						return undefined; //if there's no valid info, then just return undefined
+					}
 				}
 			}
 		

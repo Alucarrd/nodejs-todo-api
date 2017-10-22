@@ -94,3 +94,8 @@ npm install pg-hstore@2.3.2 --save
 -----------------------------------
 
 npm install bcrypt@0.8.5 --save
+
+---
+
+npm install jsonwebtoken@5.0.5 --save 
+npm install crypto-js@3.1.5 --save 
