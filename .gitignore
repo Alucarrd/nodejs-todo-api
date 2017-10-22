@@ -9,5 +9,5 @@ target/
 *.dat
 data/
 metastore_db/
-node-modules/
+node_modules/
 *.sqlite
